@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Robot AI Backend",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "@google/genai": "^0.1.1",
     "express": "^5.1.0"
   }
 }
