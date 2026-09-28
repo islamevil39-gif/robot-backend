@@ -8,7 +8,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.json({
         status: "Robot Backend OK",
-        ai: "Gemini"
+        ai: "Gemini 3.8 Flash"
     });
 });
 
@@ -20,6 +20,7 @@ app.get("/health", (req, res) => {
 
 app.post("/chat", async (req, res) => {
     try {
+
         const message = req.body.message;
 
         if (!message || !message.trim()) {
@@ -34,18 +35,20 @@ app.post("/chat", async (req, res) => {
         if (!apiKey) {
             return res.status(500).json({
                 success: false,
-                message: "GEMINI_API_KEY غير موجود في Render"
+                message: "GEMINI_API_KEY غير موجود"
             });
         }
 
         const response = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             {
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json",
                     "x-goog-api-key": apiKey
                 },
+
                 body: JSON.stringify({
                     contents: [
                         {
@@ -55,7 +58,14 @@ app.post("/chat", async (req, res) => {
                                 }
                             ]
                         }
-                    ]
+                    ],
+
+                    generationConfig: {
+                        thinkingConfig: {
+                            thinkingLevel: "low"
+                        },
+                        maxOutputTokens: 500
+                    }
                 })
             }
         );
@@ -77,13 +87,19 @@ app.post("/chat", async (req, res) => {
         }
 
         const reply =
-            data.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "لم يصل رد من Gemini";
+            data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!reply) {
+            return res.status(500).json({
+                success: false,
+                message: "Gemini لم يرجع جوابًا"
+            });
+        }
 
         res.json({
             success: true,
             connection: "انترنت متصل",
-            ai: "Gemini",
+            ai: "Gemini 3.8 Flash",
             reply: reply
         });
 
